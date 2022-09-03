@@ -4,6 +4,10 @@
 import logging
 import optparse
 
+# Third-party imports
+from watchdog.events import PatternMatchingEventHandler
+from watchdog.observers import Observer
+
 
 #####################################
 # Get Environment Variables
@@ -29,28 +33,27 @@ def create_logger() -> logging:
 
 logger = create_logger()  # create logger func
 
-
 ###########################
 # Custom Error Handler func
 ###########################
 
-def error_handler(func):
-    # exception handling decorator function
-
-    def inner_func(*args, **kwargs):
-        try:
-            result = func(*args, **kwargs)
-            return result
-        except botocore.exceptions.NoCredentialsError as err:
-            logger.error("NoCredentialsError: error=%s func=%s", err.fmt, func.__name__)
-        except botocore.exceptions.NoRegionError as err:
-            logger.error("NoRegionError: error=%s func=%s", err.fmt, func.__name__)
-        except botocore.exceptions.ClientError as err:
-            logger.error("ClientError: error=%s func=%s", err, func.__name__)
-        except Exception as err:
-            logger.error("GeneralException: error=%s func=%s", err, func.__name__)
-
-    return inner_func
+# def error_handler(func):
+#     # exception handling decorator function
+#
+#     def inner_func(*args, **kwargs):
+#         try:
+#             result = func(*args, **kwargs)
+#             return result
+#         except botocore.exceptions.NoCredentialsError as err:
+#             logger.error("NoCredentialsError: error=%s func=%s", err.fmt, func.__name__)
+#         except botocore.exceptions.NoRegionError as err:
+#             logger.error("NoRegionError: error=%s func=%s", err.fmt, func.__name__)
+#         except botocore.exceptions.ClientError as err:
+#             logger.error("ClientError: error=%s func=%s", err, func.__name__)
+#         except Exception as err:
+#             logger.error("GeneralException: error=%s func=%s", err, func.__name__)
+#
+#     return inner_func
 
 
 #######################################
@@ -86,4 +89,25 @@ def getArgs():
         parser.error("[-] Please specify an option flag, --help for more info")
     else:
         return options
+
+
+#######################################
+# Event Handler Config
+#######################################
+def observer(path) -> bool:
+    try:
+        my_event_handler = PatternMatchingEventHandler(patterns=["*"])
+        x = my_event_handler.on_created
+        print(x)
+        my_observer = Observer()
+        my_observer.schedule(
+            event_handler=my_event_handler,
+            path=path,
+            recursive=True
+        )
+        my_observer.start()
+        return True
+    except Exception as e:
+        print(e)
+        return False
 
