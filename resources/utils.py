@@ -4,10 +4,6 @@
 import logging
 import optparse
 
-# Third-party imports
-from watchdog.events import PatternMatchingEventHandler
-from watchdog.observers import Observer
-
 
 #####################################
 # Get Environment Variables
@@ -89,25 +85,3 @@ def getArgs():
         parser.error("[-] Please specify an option flag, --help for more info")
     else:
         return options
-
-
-#######################################
-# Event Handler Config
-#######################################
-def observer(path) -> bool:
-    try:
-        my_event_handler = PatternMatchingEventHandler(patterns=["*"])
-        x = my_event_handler.on_created
-        print(x)
-        my_observer = Observer()
-        my_observer.schedule(
-            event_handler=my_event_handler,
-            path=path,
-            recursive=True
-        )
-        my_observer.start()
-        return True
-    except Exception as e:
-        print(e)
-        return False
-
