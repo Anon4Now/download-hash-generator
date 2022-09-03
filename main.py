@@ -2,7 +2,8 @@ from resources.utils import observer
 
 if __name__ == '__main__':
     path = f'C:/Users/tutko/Downloads'
-    observer(path)
+    while True:
+        observer(path)
 
 
 
