@@ -1,18 +1,22 @@
 import os
 import sys
 from pathlib import Path
-from resources.utils import my_event_handler
-from resources.file import start_observer, stop_observer
-
 from watchdog.observers import Observer
+from resources import (
+    create_logger,
+    my_event_handler,
+    start_observer,
+    stop_observer
+)
 
+logger = create_logger()
 monitor = f'C:/Users/tutko/Downloads'
 observer = Observer()
 observer.schedule(event_handler=my_event_handler, path=monitor, recursive=True)
 path = Path('exe.txt')
 
-if __name__ == '__main__':
-    print("starting observer")
+
+def main() -> None:
     start_observer(observer)
     try:
         while observer.is_alive():
@@ -23,6 +27,11 @@ if __name__ == '__main__':
     except Exception:
         if os.path.exists(path):
             os.remove(path)
+
+
+if __name__ == '__main__':
+    logger.info("Starting")
+    main()
 
 # import os, time, json
 #
