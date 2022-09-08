@@ -34,5 +34,8 @@ def start_watching_what_path() -> str:
 
 
 def check_vt_for_sha256_hash() -> bool:
-    # TODO: ADD PROMPT CONTENT TO SEE IF VT CHECK IS REQUIRED
-    pass
+    user_input = input("[?] Would you like to check the SHA256 hash against Virus Total? [y/n] >> ")
+    if 'y' in user_input:
+        return True
+    elif 'n' in user_input:
+        return False
