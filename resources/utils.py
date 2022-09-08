@@ -4,11 +4,36 @@
 import logging
 import optparse
 
+from watchdog.events import PatternMatchingEventHandler
+from watchdog.observers import Observer
 
 #####################################
 # Get Environment Variables
 #####################################
 # LOGGING_LEVEL ----
+
+
+#####################################
+# Watchdog File Management Funcs
+#####################################
+def on_modified_event(event) -> None:
+    get_event = str(event.src_path)  # get the src_path from event dict
+    if 'exe' in get_event:
+        with open("exe.txt", "w+") as file:  # write to the file for every modified event that is recieved
+            file.write(get_event)
+
+
+my_event_handler: PatternMatchingEventHandler = PatternMatchingEventHandler(patterns=["*"])
+my_event_handler.on_modified = on_modified_event  # overriding methods in PatternMatchingEventHandler class
+
+
+def start_observer(my_observer: Observer) -> None:
+    my_observer.start()
+
+
+def stop_observer(my_observer: Observer) -> None:
+    my_observer.stop()
+
 
 #####################################
 # Create logger func
