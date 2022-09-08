@@ -2,37 +2,15 @@
 
 # Standard Library imports
 import logging
-import optparse
 
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
+
 
 #####################################
 # Get Environment Variables
 #####################################
 # LOGGING_LEVEL ----
-
-
-#####################################
-# Watchdog File Management Funcs
-#####################################
-def on_modified_event(event) -> None:
-    get_event = str(event.src_path)  # get the src_path from event dict
-    if 'exe' in get_event:
-        with open("exe.txt", "w+") as file:  # write to the file for every modified event that is recieved
-            file.write(get_event)
-
-
-my_event_handler: PatternMatchingEventHandler = PatternMatchingEventHandler(patterns=["*"])
-my_event_handler.on_modified = on_modified_event  # overriding methods in PatternMatchingEventHandler class
-
-
-def start_observer(my_observer: Observer) -> None:
-    my_observer.start()
-
-
-def stop_observer(my_observer: Observer) -> None:
-    my_observer.stop()
 
 
 #####################################
@@ -53,6 +31,7 @@ def create_logger() -> logging:
 
 
 logger = create_logger()  # create logger func
+
 
 ###########################
 # Custom Error Handler func
@@ -76,37 +55,27 @@ logger = create_logger()  # create logger func
 #
 #     return inner_func
 
+#####################################
+# Watchdog File Management Funcs
+#####################################
+def on_modified_event(event) -> None:
+    get_event = str(event.src_path)  # get the src_path from event dict
+    if 'exe' in get_event:
+        with open("exe.txt", "w+") as file:  # write to the file for every modified event that is recieved
+            file.write(get_event)
 
-#######################################
-# Option Parser
-#######################################
-parser = optparse.OptionParser()
+
+my_event_handler: PatternMatchingEventHandler = PatternMatchingEventHandler(patterns=["*"])
+my_event_handler.on_modified = on_modified_event  # overriding methods in PatternMatchingEventHandler class
 
 
-def getArgs():
-    parser.add_option(
-        "-o",
-        "--option",
-        dest="sanitize_option",
-        help="Requires either (delete OR modify)"
-             "** delete option **\n"
-             "- Deletes Internet Gateway"
-             "- Deletes Subnets"
-             "- Deletes Route Tables (not default)"
-             "- Deletes NACL (not default)"
-             "- Deletes SG (not default)"
-             "- Deletes default VPC"
-             "- Updates SSM parameter preferences to block public access\n\n"
-             "** modify option **\n"
-             "- Updates default NACL (removes inbound/outbound rules)"
-             "- Updates default SG (removes inbound/outbound rules)"
-             "- Updates SSM parameter preferences to block public access"
-    )
-    parsingInput = parser.parse_args()
+def start_observer(my_observer: Observer) -> None:
+    my_observer.start()
 
-    (options, args) = parsingInput
 
-    if not options.sanitize_option:
-        parser.error("[-] Please specify an option flag, --help for more info")
-    else:
-        return options
+def stop_observer(my_observer: Observer) -> None:
+    my_observer.stop()
+
+
+
+
