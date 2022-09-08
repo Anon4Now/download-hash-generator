@@ -2,6 +2,11 @@ import os
 import sys
 from pathlib import Path
 from watchdog.observers import Observer
+
+from resources.user_prompts import (
+    start_watching_path,
+    start_watching_what_path
+)
 from resources import (
     create_logger,
     my_event_handler,
@@ -10,28 +15,25 @@ from resources import (
 )
 
 logger = create_logger()
-monitor = f'C:/Users/tutko/Downloads'
-observer = Observer()
-observer.schedule(event_handler=my_event_handler, path=monitor, recursive=True)
-path = Path('exe.txt')
 
 
-def main() -> None:
+def main(path_to_watch: str) -> None:
+    observer = Observer()
+    observer.schedule(event_handler=my_event_handler, path=path_to_watch, recursive=True)
+    text_file = Path('exe.txt')
     start_observer(observer)
-    try:
+    while True:
         while observer.is_alive():
-            if path.is_file() and not os.stat('exe.txt').st_size == 0:
-                print("stopping observer")
+            if text_file.is_file() and not os.stat('exe.txt').st_size == 0:
+                logger.info("[+] File downloaded, stopping observer and progressing")
                 stop_observer(observer)
-                sys.exit()
-    except Exception:
-        if os.path.exists(path):
-            os.remove(path)
+                break
 
 
 if __name__ == '__main__':
-    logger.info("Starting")
-    main()
+    if start_watching_path():
+        user_path = start_watching_what_path()
+        main(path_to_watch=user_path)
 
 # import os, time, json
 #
