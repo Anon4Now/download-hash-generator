@@ -31,3 +31,8 @@ def start_watching_what_path() -> str:
             return path
         except FileNotFoundError:
             raise
+
+
+def check_vt_for_sha256_hash() -> bool:
+    # TODO: ADD PROMPT CONTENT TO SEE IF VT CHECK IS REQUIRED
+    pass
