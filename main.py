@@ -1,4 +1,5 @@
 import os
+from hashlib import sha256
 import sys
 from pathlib import Path
 from watchdog.observers import Observer
@@ -7,6 +8,7 @@ from resources.user_prompts import (
     start_watching_path,
     start_watching_what_path
 )
+from resources.hash_generator import Hash
 from resources import (
     create_logger,
     my_event_handler,
@@ -28,11 +30,16 @@ def main(path_to_watch: str) -> None:
                 logger.info("[+] File downloaded, stopping observer and progressing")
                 stop_observer(observer)
                 break
+        logger.info("[!] Generating hashes for the downloaded file")
+        hashes = Hash(text_file='exe.txt')
+        # TODO: NEED TO PROMPT THE USER TO SEE IF THEY WANT TO CHECK VT (IF ENV FILE IS PRESENT)
+        break
 
 
 if __name__ == '__main__':
     if start_watching_path():
         user_path = start_watching_what_path()
+        logger.info("[!] Starting the watcher, to interrupt press 'CTRL+C'")
         main(path_to_watch=user_path)
 
 # import os, time, json
