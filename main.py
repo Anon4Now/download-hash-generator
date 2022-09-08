@@ -19,17 +19,18 @@ from resources.utils import (
 from resources.vt_check import VirusTotal
 
 logger = create_logger()
+does_temp_file_exist = Path(temp_file)
 
 
 def main(path_to_watch: str) -> None:
     observer = Observer()
     observer.schedule(event_handler=my_event_handler, path=path_to_watch, recursive=True)
-    text_file = Path(temp_file)
     start_observer(observer)
+    # TODO: GRACEFULLY CATCH CTRL+C INPUT FROM USER TO END SCRIPT
     while True:
         # TODO: INTRODUCE A TIMEOUT FOR WAITING ON THE THREAD
         while observer.is_alive():
-            if text_file.is_file() and not os.stat(temp_file).st_size == 0:
+            if does_temp_file_exist.is_file() and not os.stat(temp_file).st_size == 0:
                 logger.info("[+] File downloaded, stopping observer and progressing")
                 stop_observer(observer)
                 break
