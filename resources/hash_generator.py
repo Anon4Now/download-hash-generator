@@ -21,7 +21,7 @@ class Hash:
     def __post_init__(self) -> None:
         """
         This post init does two things:
-        1. It will open the passes param file and retrieve the file path. (e.g. 'C:/example_folder/downloaded_file.txt')
+        1. It will open the passed param file and retrieve the file path. (e.g. 'C:/example_folder/downloaded_file.txt')
         2. It will call the _generate_hashes method to open the downloaded file at the param path and gen hashes
         :return: None
         """
