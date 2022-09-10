@@ -89,6 +89,7 @@ def error_handler(func):
 #####################################
 # Watchdog File Management Funcs
 #####################################
+@error_handler
 def on_modified_event(event) -> None:
     """
     Function that overwrites a method of the same name in the PatternMatchingEventHandler class.
@@ -108,6 +109,7 @@ my_event_handler: PatternMatchingEventHandler = PatternMatchingEventHandler(patt
 my_event_handler.on_modified = on_modified_event  # overriding methods in PatternMatchingEventHandler class
 
 
+@error_handler
 def start_observer(my_observer: Observer) -> None:
     """
     Function to start the watcher, which calls a method on the Observer class
@@ -117,6 +119,7 @@ def start_observer(my_observer: Observer) -> None:
     my_observer.start()
 
 
+@error_handler
 def stop_observer(my_observer: Observer) -> None:
     """
     Function to stop the watcher, which calls a method on the Observer class
