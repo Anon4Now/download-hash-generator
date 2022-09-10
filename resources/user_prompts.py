@@ -32,17 +32,19 @@ def start_watching_what_path() -> str:
     default Download path, or if they want to provide a custom path
     :return: String containing either the default Download path, or a custom path
     """
-    osName = platform.system()  # get OS details
+    os_name = platform.system()  # get OS details
     username = getpass.getuser()  # get current username
     default_path = input("[?] The default path to monitor is Downloads, do you want keep this? [y/n] >> ").lower()
     # determine if default path/custom path is being used
-    # TODO: ADD MAC OS DEFAULT PATH
     if 'y' in default_path:
-        if 'Windows' in osName:
+        if 'Windows' in os_name:
             path = f'C:/Users/{username}/Downloads'
             return path
-        elif 'Linux' in osName:
+        elif 'Linux' in os_name:
             path = f'/home/{username}/Downloads'
+            return path
+        elif 'Mac' in os_name:
+            path = f'/Users/{username}/Downloads/'
             return path
     elif 'n' in default_path:
         path = input("[?] Enter folder path to monitor, no quotes (i.e. C:/Users/username/Downloads) >> ")
