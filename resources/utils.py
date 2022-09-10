@@ -24,6 +24,7 @@ with open("config.json", 'r') as f:
 
 file_exts = data['file_types']
 
+
 # DOTENV ENVIRONMENT VARIABLES
 def get_envs() -> bool:
     """
