@@ -15,6 +15,7 @@ from resources.user_prompts import (
 )
 from resources.utils import (
     create_logger,
+    error_handler,
     temp_file,
     my_event_handler,
     start_observer,
@@ -29,6 +30,7 @@ logger = create_logger()
 does_temp_file_exist = Path(temp_file)
 
 
+@error_handler
 def main(path_to_watch: str) -> None:
     """
     Main func that will start the loops to prompt user and print stdout.
@@ -44,7 +46,6 @@ def main(path_to_watch: str) -> None:
     observer.schedule(event_handler=my_event_handler, path=path_to_watch, recursive=True)
     start_observer(observer)
 
-    # TODO: GRACEFULLY CATCH CTRL+C INPUT FROM USER TO END SCRIPT
     # outermost loop keeping cli open
     while True:
         # TODO: INTRODUCE A TIMEOUT FOR WAITING ON THE THREAD
