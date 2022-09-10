@@ -8,6 +8,9 @@ from dataclasses import dataclass, field
 # Third-party imports
 import requests
 
+# Local App imports
+from resources.utils import error_handler
+
 
 @dataclass
 class VirusTotal:
@@ -24,6 +27,7 @@ class VirusTotal:
     api_key_val: str
     out_dict: dict = field(default_factory=dict, init=False, repr=False)
 
+    @error_handler
     def __post_init__(self) -> None:
         """
         This post init check the API response to make sure there was no error.
@@ -35,16 +39,20 @@ class VirusTotal:
             2b. It will update the instance dictionary with the data from the response
         :return: None
         """
-        if not self.response.get('error'):
-            _analysis_date = datetime.datetime.fromtimestamp(
-                self.response.get('data').get('attributes').get('last_analysis_date'))
-            self.out_dict['LastAnalysisDate'] = _analysis_date
-            _analysis_stats = self.response.get('data').get('attributes').get('last_analysis_stats')
-            self.out_dict['LastAnalysisStats'] = _analysis_stats
-        else:
-            _error_code = self.response.get('error').get('code')
-            self.out_dict['error_code'] = _error_code
+        try:
+            if not self.response.get('error'):
+                _analysis_date = datetime.datetime.fromtimestamp(
+                    self.response.get('data').get('attributes').get('last_analysis_date'))
+                self.out_dict['LastAnalysisDate'] = _analysis_date
+                _analysis_stats = self.response.get('data').get('attributes').get('last_analysis_stats')
+                self.out_dict['LastAnalysisStats'] = _analysis_stats
+            else:
+                _error_code = self.response.get('error').get('code')
+                self.out_dict['error_code'] = _error_code
+        except KeyError:
+            raise
 
+    @error_handler
     @property
     def response(self) -> dict:
         """
@@ -58,4 +66,7 @@ class VirusTotal:
             "Accept": "application/json",
             self.api_key: self.api_key_val}
         response = requests.request("GET", url, headers=headers).text
-        return json.loads(response)
+        if response:
+            return json.loads(response)
+        else:
+            raise Exception
