@@ -1,5 +1,5 @@
 """Module containing Utility Functions"""
-
+import json
 # Standard Library imports
 import logging
 import sys
@@ -14,11 +14,15 @@ from resources.errors import BadPromptResponseError
 
 temp_file = 'temp.txt'  # name of the temp file created and deleted by script
 
+#####################################
+# Get Environment Variables & Configs
+#####################################
 
-#####################################
-# Get Environment Variables
-#####################################
-# LOGGING_LEVEL ----
+# Config File Vars
+with open("config.json", 'r') as f:
+    data = json.load(f)
+
+file_exts = data['file_types']
 
 # DOTENV ENVIRONMENT VARIABLES
 def get_envs() -> bool:
@@ -44,10 +48,6 @@ def create_logger() -> logging:
     """
     logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(levelname)s: %(message)s')
     log = logging.getLogger()
-    # log.setLevel(logging.INFO)
-
-    logging.getLogger('boto').setLevel(logging.CRITICAL)
-    logging.getLogger('botocore').setLevel(logging.CRITICAL)
     return log
 
 
@@ -99,9 +99,10 @@ def on_modified_event(event) -> None:
     :return: None
     """
     get_event = str(event.src_path)  # get the src_path from event dict
-    if 'exe' in get_event:
-        with open(temp_file, "w+") as file:  # write to the file for any matching modified event that is received
-            file.write(get_event)
+    for ext in file_exts:
+        if ext in get_event:
+            with open(temp_file, "w+") as file:  # write to the file for any matching modified event that is received
+                file.write(get_event)
 
 
 # Needed vars and assignments for watcher to function properly
