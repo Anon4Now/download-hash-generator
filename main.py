@@ -48,7 +48,6 @@ def main(path_to_watch: str) -> None:
 
     # outermost loop keeping cli open
     while True:
-        # TODO: INTRODUCE A TIMEOUT FOR WAITING ON THE THREAD
         # inner loop that will monitor for events at the path set
         while observer.is_alive():
             if does_temp_file_exist.is_file() and not os.stat(
