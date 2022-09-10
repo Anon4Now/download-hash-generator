@@ -52,7 +52,6 @@ class VirusTotal:
         except KeyError:
             raise
 
-    @error_handler
     @property
     def response(self) -> dict:
         """
