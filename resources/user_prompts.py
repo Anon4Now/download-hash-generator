@@ -4,21 +4,28 @@
 import getpass
 import platform
 
+# Local App imports
+from resources.utils import error_handler
+from resources.errors import BadPromptResponseError
 
-# TODO: NEED TO ADD CUSTOM EXCEPTION CLASS IN UTILS THAT HANDLES BAD PROMPT RESPONSES (BadPromptResponseError)
+
+@error_handler
 def start_watching_path() -> bool:
     """
     Function to prompt the user and determine if they want to start monitoring a path.
     :return: Boolean result of prompt (i.e. True = yes / False = no)
     :raise:
     """
-    user_input = input("[?] Would you like to watch a path? [y/n] >> ")
+    user_input = input("[?] Would you like to watch a path? [y/n] >> ").lower()
     if 'y' in user_input:
         return True
     elif 'n' in user_input:
         return False
+    else:
+        raise BadPromptResponseError
 
 
+@error_handler
 def start_watching_what_path() -> str:
     """
     Function to prompt the user to determine if they want to use the OS
@@ -27,7 +34,7 @@ def start_watching_what_path() -> str:
     """
     osName = platform.system()  # get OS details
     username = getpass.getuser()  # get current username
-    default_path = input("[?] The default path to monitor is Downloads, do you want keep this? [y/n] >> ")
+    default_path = input("[?] The default path to monitor is Downloads, do you want keep this? [y/n] >> ").lower()
     # determine if default path/custom path is being used
     # TODO: ADD MAC OS DEFAULT PATH
     if 'y' in default_path:
@@ -39,14 +46,14 @@ def start_watching_what_path() -> str:
             return path
     elif 'n' in default_path:
         path = input("[?] Enter folder path to monitor, no quotes (i.e. C:/Users/username/Downloads) >> ")
-        try:
-            if '\\' in path:
-                path = path.replace("\\", "/")
-            return path
-        except FileNotFoundError:
-            raise
+        if '\\' in path:
+            path = path.replace("\\", "/")
+        return path
+    else:
+        raise BadPromptResponseError
 
 
+@error_handler
 def check_vt_for_sha256_hash() -> bool:
     """
     Function to prompt user to determine if they would like to
@@ -59,3 +66,5 @@ def check_vt_for_sha256_hash() -> bool:
         return True
     elif 'n' in user_input:
         return False
+    else:
+        raise BadPromptResponseError
