@@ -2,12 +2,15 @@
 
 # Standard Library imports
 import logging
+import sys
 
 # Third-party imports
 from dotenv import load_dotenv, find_dotenv
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
+# Local App imports
+from resources.errors import BadPromptResponseError
 
 temp_file = 'temp.txt'  # name of the temp file created and deleted by script
 
@@ -55,23 +58,33 @@ logger = create_logger()  # create logger func
 # Custom Error Handler func
 ###########################
 
-# def error_handler(func):
-#     # exception handling decorator function
-#
-#     def inner_func(*args, **kwargs):
-#         try:
-#             result = func(*args, **kwargs)
-#             return result
-#         except botocore.exceptions.NoCredentialsError as err:
-#             logger.error("NoCredentialsError: error=%s func=%s", err.fmt, func.__name__)
-#         except botocore.exceptions.NoRegionError as err:
-#             logger.error("NoRegionError: error=%s func=%s", err.fmt, func.__name__)
-#         except botocore.exceptions.ClientError as err:
-#             logger.error("ClientError: error=%s func=%s", err, func.__name__)
-#         except Exception as err:
-#             logger.error("GeneralException: error=%s func=%s", err, func.__name__)
-#
-#     return inner_func
+def error_handler(func):
+    # exception handling decorator function
+
+    def inner_func(*args, **kwargs):
+        try:
+            result = func(*args, **kwargs)
+            return result
+        except BadPromptResponseError as err:
+            logger.error("BadPromptResponseError: error=%s func=%s", err, func.__name__)
+        except KeyboardInterrupt:
+            logger.info("[!] CTRL+C pressed, exiting program")
+            sys.exit(0)
+        except FileNotFoundError as err:
+            logger.error("FileNotFoundError: error=%s func=%s", err, func.__name__)
+        except EOFError as err:
+            logger.error("EOFError: error=%s func=%s", err, func.__name__)
+        except KeyError as err:
+            logger.error("KeyError: error=%s func=%s", err, func.__name__)
+        except TypeError as err:
+            logger.error("TypeError: error=%s func=%s", err, func.__name__)
+        except ValueError as err:
+            logger.error("ValueError: error=%s func=%s", err, func.__name__)
+        except Exception as err:
+            logger.error("GeneralException: error=%s func=%s", err, func.__name__)
+
+    return inner_func
+
 
 #####################################
 # Watchdog File Management Funcs
