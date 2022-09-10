@@ -65,8 +65,8 @@ def error_handler(func):
         try:
             result = func(*args, **kwargs)
             return result
-        except BadPromptResponseError as err:
-            logger.error("BadPromptResponseError: error=%s func=%s", err, func.__name__)
+        except BadPromptResponseError:
+            logger.error("BadPromptResponseError: Unknown input, needs to be either [y/n]")
         except KeyboardInterrupt:
             logger.info("[!] CTRL+C pressed, exiting program")
             sys.exit(0)
