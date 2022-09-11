@@ -10,7 +10,8 @@ from watchdog.observers import Observer
 # Local App imports
 from resources.user_prompts import (
     start_watching_path,
-    start_watching_what_path,
+    start_watching_default_path,
+    start_watching_custom_path,
     check_vt_for_sha256_hash
 )
 from resources.utils import (
@@ -46,6 +47,7 @@ def main(path_to_watch: str) -> None:
     observer.schedule(event_handler=my_event_handler, path=path_to_watch, recursive=True)
     start_observer(observer)
 
+    logger.info("[!] Starting the watcher, to interrupt press 'CTRL+C'")
     # outermost loop keeping cli open
     while True:
         # inner loop that will monitor for events at the path set
@@ -87,9 +89,9 @@ def main(path_to_watch: str) -> None:
 if __name__ == '__main__':
     try:
         if start_watching_path():  # prompt the user to see if they want to monitor a path
-            user_path = start_watching_what_path()  # check whether the path is default or custom
-            logger.info("[!] Starting the watcher, to interrupt press 'CTRL+C'")
-            main(path_to_watch=user_path)  # call the main func to start loops
+            path = start_watching_default_path()
+            # ternary expression to determine which path will be used
+            main(path_to_watch=path) if path else main(path_to_watch=start_watching_custom_path())
     finally:
         if os.path.exists(temp_file):  # if the temp file was created, delete it for next cycle
             os.remove(temp_file)
