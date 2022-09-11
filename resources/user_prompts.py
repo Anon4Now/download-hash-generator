@@ -33,8 +33,9 @@ def start_watching_custom_path() -> str:
     :return: String containing a custom path to watch
     """
     path = input("[?] Enter folder path to monitor, no quotes (i.e. C:/Users/username/Downloads) >> ")
-    if '\\' in path:
-        path = path.replace("\\", "/")
+    if path and isinstance(path, str):
+        if '\\' in path:
+            path = path.replace("\\", "/")
         return path
     else:
         raise BadPromptResponseError
