@@ -75,7 +75,7 @@ def check_vt_for_sha256_hash() -> bool:
     to the user if they have set up a .env file in their dir.
     :return: Boolean result of the prompt (i.e. True = yes / False = no)
     """
-    user_input = input("[?] Would you like to check the SHA256 hash against Virus Total? [y/n] >> ")
+    user_input = input("[?] Would you like to check the SHA256 hash against Virus Total? [y/n] >> ").lower()
     if 'y' in user_input:
         return True
     elif 'n' in user_input:
