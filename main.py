@@ -51,7 +51,7 @@ def main(path_to_watch: str) -> None:
     # outermost loop keeping cli open
     while True:
         # inner loop that will monitor for events at the path set
-        while observer.is_alive():
+        while observer.is_alive():  # TODO: TEST THE SNYK RECOMMENDATION FOR USING IF
             if does_temp_file_exist.is_file() and not os.stat(
                     temp_file).st_size == 0:  # does the temp file exist and does it have contents
                 logger.info("[+] File downloaded, stopping observer and progressing")
@@ -65,6 +65,7 @@ def main(path_to_watch: str) -> None:
         print(f' >> MD5 -- {hashes.hash_md5}')
 
         if get_envs():  # hide prompts unless env file exists in current directory
+            # TODO: MOVE THE BELOW CONTENT TO ANOTHER FUNC AND PASS THE SHA256 HASH AS PARAM
             if check_vt_for_sha256_hash():  # prompt the user to see if a VT check is wanted
                 logger.info("[!] Attempting to call Virus Total")
                 vt = VirusTotal(
