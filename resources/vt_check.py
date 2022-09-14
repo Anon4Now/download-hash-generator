@@ -3,13 +3,18 @@
 # Standard Library imports
 import json
 import datetime
+import os
 from dataclasses import dataclass, field
+from typing import Any
 
 # Third-party imports
 import requests
 
+from resources.user_prompts import check_vt_for_sha256_hash
 # Local App imports
-from resources.utils import error_handler
+from resources.utils import error_handler, create_logger
+
+logger = create_logger()
 
 
 @dataclass
@@ -21,51 +26,61 @@ class VirusTotal:
     :param api_key: (required) The string representation Virus Total API key (env var)
     :param api_key_val: (required) The string representation of the Virus Total API key value (env var)
     """
-    hash_sha256: str
-    api_endpoint: str
-    api_key: str
-    api_key_val: str
-    out_dict: dict = field(default_factory=dict, init=False, repr=False)
+    last_analysis_date: datetime = field(default_factory=Any)
+    last_analysis_stats: dict = field(default_factory=dict)
+    error_code: str = None
 
-    @error_handler
-    def __post_init__(self) -> None:
-        """
-        This post init check the API response to make sure there was no error.
-        1. If no error found in response:
-            1a. It will parse the response from the API for the "Last Analysis Time" and the "Last Analysis Stats"
-            1b. It will update the instance dictionary with the data from the response
-        2. If there is an error in response:
-            2a. It will parse the response from the API for the "Error Code"
-            2b. It will update the instance dictionary with the data from the response
-        :return: None
-        """
+    @classmethod
+    def from_dict(cls, data: dict) -> "VirusTotal Results":
         try:
-            if not self.response.get('error'):
-                _analysis_date = datetime.datetime.fromtimestamp(
-                    self.response.get('data').get('attributes').get('last_analysis_date'))
-                self.out_dict['LastAnalysisDate'] = _analysis_date
-                _analysis_stats = self.response.get('data').get('attributes').get('last_analysis_stats')
-                self.out_dict['LastAnalysisStats'] = _analysis_stats
+            if not data.get('error'):
+                return cls(
+                    last_analysis_date=datetime.datetime.fromtimestamp(
+                        data.get('data').get('attributes').get('last_analysis_date')),
+                    last_analysis_stats=data.get('data').get('attributes').get('last_analysis_stats')
+                )
             else:
-                _error_code = self.response.get('error').get('code')
-                self.out_dict['error_code'] = _error_code
+                return cls(error_code=data.get('error').get('code'))
         except KeyError:
             raise
 
-    @property
-    def response(self) -> dict:
-        """
-        This property method will make the API call and the loads response string
-        :return: Dictionary containing the API response
-        """
-        # See if file has already been uploaded
-        url = f"{self.api_endpoint}{self.hash_sha256}"
 
-        headers = {
-            "Accept": "application/json",
-            self.api_key: self.api_key_val}
-        response = requests.request("GET", url, headers=headers).text
-        if response:
-            return json.loads(response)
-        else:
-            raise Exception
+@error_handler
+def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: str, api_key_val: str) -> dict:
+    """
+    This property method will make the API call and the loads response string
+    :return: Dictionary containing the API response
+    """
+    # See if file has already been uploaded
+    url = f"{api_endpoint}{sha256_hash}"
+
+    headers = {
+        "Accept": "application/json",
+        api_key: api_key_val}
+    response = requests.request("GET", url, headers=headers).text
+    if response:
+        return json.loads(response)
+    else:
+        raise Exception
+
+
+def use_virus_total(sha256_hash: str) -> None:
+    if check_vt_for_sha256_hash():  # prompt the user to see if a VT check is wanted
+        logger.info("[!] Attempting to call Virus Total")
+        vt_dict_results = retrieve_virus_total_results(
+            sha256_hash=sha256_hash,
+            api_endpoint=os.getenv('API_ENDPOINT'),
+            api_key=os.getenv('API_key'),
+            api_key_val=os.getenv('API_KEY_VAL'))  # pass the params to the API calling func
+        vt = VirusTotal.from_dict(vt_dict_results)  # call the class method to parse the dict results
+
+        if not vt.error_code:  # make sure there were no errors in API response
+            # Stdout to user what the scan results are
+            print(f">> Virus Total Results:")
+            print(f" >>> Last Analysis Date:")
+            print(f"      {vt.last_analysis_date}")
+            print(f" >>> Last Analysis Stats:")
+            for k, v in vt.last_analysis_stats.items():
+                print(f"      {k} - {v}")
+        else:  # if errors in API response, print them out
+            print(f">> Virus Total Scan Failed with error code:\n {vt.error_code}")
