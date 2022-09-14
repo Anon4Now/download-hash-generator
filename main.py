@@ -11,8 +11,7 @@ from watchdog.observers import Observer
 from resources.user_prompts import (
     start_watching_path,
     start_watching_default_path,
-    start_watching_custom_path,
-    check_vt_for_sha256_hash
+    start_watching_custom_path
 )
 from resources.utils import (
     create_logger,
@@ -24,32 +23,11 @@ from resources.utils import (
     get_envs
 )
 from resources.hash_generator import Hash
-from resources.vt_check import VirusTotal
+from resources.vt_check import use_virus_total
 
 # Global vars
 logger = create_logger()
 does_temp_file_exist = Path(temp_file)
-
-
-def use_virus_total(sha256_hash: str) -> None:
-    if check_vt_for_sha256_hash():  # prompt the user to see if a VT check is wanted
-        logger.info("[!] Attempting to call Virus Total")
-        vt = VirusTotal(
-            hash_sha256=sha256_hash,
-            api_endpoint=os.getenv('API_ENDPOINT'),
-            api_key=os.getenv('API_key'),
-            api_key_val=os.getenv('API_KEY_VAL')
-        )  # initialize the instance with the env vars and the sha256 hash
-        if not vt.out_dict.get('error_code'):  # make sure there were no errors in API response
-            # Stdout to user what the scan results are
-            print(f">> Virus Total Results:")
-            print(f" >>> Last Analysis Date:")
-            print(f"      {vt.out_dict.get('LastAnalysisDate')}")
-            print(f" >>> Last Analysis Stats:")
-            for k, v in vt.out_dict.get('LastAnalysisStats').items():
-                print(f"      {k} - {v}")
-        else:  # if errors in API response, print them out
-            print(f">> Virus Total Scan Failed with error code:\n {vt.out_dict.get('error_code')}")
 
 
 @error_handler
@@ -86,7 +64,7 @@ def main(path_to_watch: str) -> None:
         print(f' >> MD5 -- {hashes.hash_md5}')
 
         if get_envs():  # hide prompts unless env file exists in current directory
-            use_virus_total(hashes.hash_sha256)
+            use_virus_total(hashes.hash_sha256)  # call the func in the vt_check module
         break  # end the outermost loop
 
 
