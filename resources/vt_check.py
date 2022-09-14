@@ -44,6 +44,7 @@ class VirusTotal:
                         data.get('data').get('attributes').get('last_analysis_date')),
                     last_analysis_stats=data.get('data').get('attributes').get('last_analysis_stats')
                 )
+            # TODO: THIS DOES NOT APPEAR TO BE WORKING WITH ERROR (ERROR: TypeError: error=Cannot instantiate typing.Any func=main)
             else:
                 return cls(error_code=data.get('error').get('code'))
         except KeyError:
