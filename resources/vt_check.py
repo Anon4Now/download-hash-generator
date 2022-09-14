@@ -67,9 +67,9 @@ def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: s
     headers = {
         "Accept": "application/json",
         api_key: api_key_val}
-    response = requests.request("GET", url, headers=headers).text
+    response = requests.get(url, headers=headers)
     if response:
-        return json.loads(response)
+        return response.json()
     else:
         raise Exception
 
