@@ -73,7 +73,7 @@ def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: s
         raise Exception
 
 
-def use_virus_total(sha256_hash: str) -> None:
+def use_virus_total(sha256_hash: str) -> bool:
     """
     This function will dispatch the calls to the other elements in the module and
     will print out the Virus Total scan results to stdout.
@@ -97,5 +97,7 @@ def use_virus_total(sha256_hash: str) -> None:
             print(f" >>> Last Analysis Stats:")
             for k, v in vt.last_analysis_stats.items():
                 print(f"      {k} - {v}")
+            return True
         else:  # if errors in API response, print them out
             print(f">> Virus Total Scan Failed with error code:\n {vt.error_code}")
+            return False
