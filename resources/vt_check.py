@@ -56,7 +56,7 @@ def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: s
     This function will make the API call and the loads response string
     :param sha256_hash: (required) Hash derived from the Hash class needed for VT to check their DB
     :param api_endpoint: (required) The API endpoint stored as env variable
-    :param api_key: API (required) key stored as env variable
+    :param api_key: (required) API key stored as env variable
     :param api_key_val: (required) API key value stored as env variable
     :return: Dictionary containing the API response
     """
