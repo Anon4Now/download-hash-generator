@@ -64,7 +64,7 @@ def main(path_to_watch: str) -> bool:
         print(f' >> MD5 -- {hashes.hash_md5}')
 
         if get_envs():  # hide prompts unless env file exists in current directory
-            return True if use_virus_total(hashes.hash_sha256) else False  # call the func in the vt_check module
+            return True if use_virus_total(hashes.hash_sha256) else False  # call the func in the vt_check module and check bool result
 
         break  # end the outermost loop
 
