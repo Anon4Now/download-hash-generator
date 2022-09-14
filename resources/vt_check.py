@@ -1,4 +1,4 @@
-"""Module containing class and methods to parse the Virus Total API call"""
+"""Module containing class and functions to parse the Virus Total API call"""
 
 # Standard Library imports
 import json
