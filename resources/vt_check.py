@@ -32,6 +32,11 @@ class VirusTotal:
 
     @classmethod
     def from_dict(cls, data: dict) -> "VirusTotal Results":
+        """
+        This class method will take in a python structure (dict) and parse it for the class params
+        :param data: A python dict obtained from Virus Total's APIs
+        :return: String highlighting what data is being updated in class params
+        """
         try:
             if not data.get('error'):
                 return cls(
@@ -48,7 +53,11 @@ class VirusTotal:
 @error_handler
 def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: str, api_key_val: str) -> dict:
     """
-    This property method will make the API call and the loads response string
+    This function will make the API call and the loads response string
+    :param sha256_hash: (required) Hash derived from the Hash class needed for VT to check their DB
+    :param api_endpoint: (required) The API endpoint stored as env variable
+    :param api_key: API (required) key stored as env variable
+    :param api_key_val: (required) API key value stored as env variable
     :return: Dictionary containing the API response
     """
     # See if file has already been uploaded
@@ -65,6 +74,12 @@ def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: s
 
 
 def use_virus_total(sha256_hash: str) -> None:
+    """
+    This function will dispatch the calls to the other elements in the module and
+    will print out the Virus Total scan results to stdout.
+    :param sha256_hash: (required) Hash derived from the Hash class needed for VT to check their DB
+    :return: None
+    """
     if check_vt_for_sha256_hash():  # prompt the user to see if a VT check is wanted
         logger.info("[!] Attempting to call Virus Total")
         vt_dict_results = retrieve_virus_total_results(
