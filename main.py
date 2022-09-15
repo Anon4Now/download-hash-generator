@@ -3,6 +3,7 @@
 # Standard Library imports
 import os
 from pathlib import Path
+from typing import Tuple
 
 # Third-party imports
 from watchdog.observers import Observer
@@ -28,6 +29,22 @@ from resources.vt_check import use_virus_total, retrieve_virus_total_results
 # Global vars
 logger = create_logger()
 does_temp_file_exist = Path(temp_file)
+
+
+def call_vt_and_get_results(sha256_hash: str) -> Tuple[dict, int]:
+    """
+    Function that makes the call to the retrieve_virus_total_results func and returns results.
+    This is done to assist with the 'DI' principle.
+    :param sha256_hash: SHA256 hash that is passed as a string and will be used for API call
+    :return: Tuple containing dict response from API and an int response code
+    """
+    logger.info("[!] Attempting to call Virus Total")
+    vt_dict_results = retrieve_virus_total_results(
+        sha256_hash=sha256_hash,
+        api_endpoint=os.getenv('API_ENDPOINT'),
+        api_key=os.getenv('API_key'),
+        api_key_val=os.getenv('API_KEY_VAL'))  # pass the params to the API calling func
+    return vt_dict_results
 
 
 @error_handler
@@ -65,12 +82,7 @@ def main(path_to_watch: str) -> bool:
 
         if get_envs():  # hide prompts unless env file exists in current directory
             if check_vt_for_sha256_hash():  # prompt the user to see if a VT check is wanted
-                logger.info("[!] Attempting to call Virus Total")
-                vt_dict_results = retrieve_virus_total_results(
-                    sha256_hash=hashes.hash_sha256,
-                    api_endpoint=os.getenv('API_ENDPOINT'),
-                    api_key=os.getenv('API_key'),
-                    api_key_val=os.getenv('API_KEY_VAL'))  # pass the params to the API calling func
+                vt_dict_results = call_vt_and_get_results(hashes.hash_sha256)  # call the func in the main module to get the API results
                 return True if use_virus_total(vt_dict_results[0]) else False  # call the func in the vt_check module and check bool result
 
         break  # end the outermost loop
