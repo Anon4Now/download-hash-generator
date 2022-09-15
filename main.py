@@ -38,7 +38,6 @@ def call_vt_and_get_results(sha256_hash: str) -> Tuple[dict, int]:
     :param sha256_hash: SHA256 hash that is passed as a string and will be used for API call
     :return: Tuple containing dict response from API and an int response code
     """
-    logger.info("[!] Attempting to call Virus Total")
     vt_dict_results = retrieve_virus_total_results(
         sha256_hash=sha256_hash,
         api_endpoint=os.getenv('API_ENDPOINT'),
@@ -82,6 +81,7 @@ def main(path_to_watch: str) -> bool:
 
         if get_envs():  # hide prompts unless env file exists in current directory
             if check_vt_for_sha256_hash():  # prompt the user to see if a VT check is wanted
+                logger.info("[!] Attempting to call Virus Total")
                 vt_dict_results = call_vt_and_get_results(hashes.hash_sha256)  # call the func in the main module to get the API results
                 return True if use_virus_total(vt_dict_results[0]) else False  # call the func in the vt_check module and check bool result
 
