@@ -71,36 +71,29 @@ def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: s
     if response.status_code == 200:
         return response.json(), response.status_code
     elif response.status_code == 404:
-        return {}, response.status_code
+        return response.json(), response.status_code
     else:
         raise Exception
 
 
-def use_virus_total(sha256_hash: str) -> bool:
+def use_virus_total(vt_results: dict) -> bool:
     """
     This function will dispatch the calls to the other elements in the module and
     will print out the Virus Total scan results to stdout.
-    :param sha256_hash: (required) Hash derived from the Hash class needed for VT to check their DB
+    :param vt_results: (required) Hash derived from the Hash class needed for VT to check their DB
     :return: None
     """
-    if check_vt_for_sha256_hash():  # prompt the user to see if a VT check is wanted
-        logger.info("[!] Attempting to call Virus Total")
-        vt_dict_results = retrieve_virus_total_results(
-            sha256_hash=sha256_hash,
-            api_endpoint=os.getenv('API_ENDPOINT'),
-            api_key=os.getenv('API_key'),
-            api_key_val=os.getenv('API_KEY_VAL'))  # pass the params to the API calling func
-        vt = VirusTotal.from_dict(vt_dict_results[0])  # call the class method to parse the dict results
+    vt = VirusTotal.from_dict(vt_results)  # call the class method to parse the dict results
 
-        if not vt.error_code:  # make sure there were no errors in API response
-            # Stdout to user what the scan results are
-            print(f">> Virus Total Results:")
-            print(f" >>> Last Analysis Date:")
-            print(f"      {vt.last_analysis_date}")
-            print(f" >>> Last Analysis Stats:")
-            for k, v in vt.last_analysis_stats.items():
-                print(f"      {k} - {v}")
-            return True
-        else:  # if errors in API response, print them out
-            print(f">> Virus Total Scan Failed with error code:\n {vt.error_code}")
-            return False
+    if not vt.error_code:  # make sure there were no errors in API response
+        # Stdout to user what the scan results are
+        print(f">> Virus Total Results:")
+        print(f" >>> Last Analysis Date:")
+        print(f"      {vt.last_analysis_date}")
+        print(f" >>> Last Analysis Stats:")
+        for k, v in vt.last_analysis_stats.items():
+            print(f"      {k} - {v}")
+        return True
+    else:  # if errors in API response, print them out
+        print(f">> Virus Total Scan Failed with error code:\n {vt.error_code}")
+        return False
