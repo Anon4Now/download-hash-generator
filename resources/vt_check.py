@@ -5,7 +5,7 @@ import json
 import datetime
 import os
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Tuple
 
 # Third-party imports
 import requests
@@ -52,7 +52,7 @@ class VirusTotal:
 
 
 @error_handler
-def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: str, api_key_val: str) -> dict:
+def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: str, api_key_val: str) -> Tuple[dict, int]:
     """
     This function will make the API call and the loads response string
     :param sha256_hash: (required) Hash derived from the Hash class needed for VT to check their DB
@@ -68,8 +68,10 @@ def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: s
         "Accept": "application/json",
         api_key: api_key_val}
     response = requests.get(url, headers=headers)
-    if response:
-        return response.json()
+    if response.status_code == 200:
+        return response.json(), response.status_code
+    elif response.status_code == 404:
+        return {}, response.status_code
     else:
         raise Exception
 
@@ -88,7 +90,7 @@ def use_virus_total(sha256_hash: str) -> bool:
             api_endpoint=os.getenv('API_ENDPOINT'),
             api_key=os.getenv('API_key'),
             api_key_val=os.getenv('API_KEY_VAL'))  # pass the params to the API calling func
-        vt = VirusTotal.from_dict(vt_dict_results)  # call the class method to parse the dict results
+        vt = VirusTotal.from_dict(vt_dict_results[0])  # call the class method to parse the dict results
 
         if not vt.error_code:  # make sure there were no errors in API response
             # Stdout to user what the scan results are
