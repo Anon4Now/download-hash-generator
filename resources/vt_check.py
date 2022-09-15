@@ -26,8 +26,8 @@ class VirusTotal:
     :param api_key: (required) The string representation Virus Total API key (env var)
     :param api_key_val: (required) The string representation of the Virus Total API key value (env var)
     """
-    last_analysis_date: datetime = field(default_factory=Any)
-    last_analysis_stats: dict = field(default_factory=dict)
+    last_analysis_date: datetime.datetime = None
+    last_analysis_stats: dict = None
     error_code: str = None
 
     @classmethod
@@ -44,7 +44,6 @@ class VirusTotal:
                         data.get('data').get('attributes').get('last_analysis_date')),
                     last_analysis_stats=data.get('data').get('attributes').get('last_analysis_stats')
                 )
-            # TODO: THIS DOES NOT APPEAR TO BE WORKING WITH ERROR (ERROR: TypeError: error=Cannot instantiate typing.Any func=main)
             else:
                 return cls(error_code=data.get('error').get('code'))
         except KeyError:
@@ -52,7 +51,8 @@ class VirusTotal:
 
 
 @error_handler
-def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: str, api_key_val: str) -> Tuple[dict, int]:
+def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: str, api_key_val: str) -> Tuple[
+    dict, int]:
     """
     This function will make the API call and the loads response string
     :param sha256_hash: (required) Hash derived from the Hash class needed for VT to check their DB
