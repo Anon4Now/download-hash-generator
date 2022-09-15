@@ -11,7 +11,7 @@ from watchdog.observers import Observer
 from resources.user_prompts import (
     start_watching_path,
     start_watching_default_path,
-    start_watching_custom_path
+    start_watching_custom_path, check_vt_for_sha256_hash
 )
 from resources.utils import (
     create_logger,
@@ -23,7 +23,7 @@ from resources.utils import (
     get_envs
 )
 from resources.hash_generator import Hash
-from resources.vt_check import use_virus_total
+from resources.vt_check import use_virus_total, retrieve_virus_total_results
 
 # Global vars
 logger = create_logger()
@@ -64,7 +64,14 @@ def main(path_to_watch: str) -> bool:
         print(f' >> MD5 -- {hashes.hash_md5}')
 
         if get_envs():  # hide prompts unless env file exists in current directory
-            return True if use_virus_total(hashes.hash_sha256) else False  # call the func in the vt_check module and check bool result
+            if check_vt_for_sha256_hash():  # prompt the user to see if a VT check is wanted
+                logger.info("[!] Attempting to call Virus Total")
+                vt_dict_results = retrieve_virus_total_results(
+                    sha256_hash=hashes.hash_sha256,
+                    api_endpoint=os.getenv('API_ENDPOINT'),
+                    api_key=os.getenv('API_key'),
+                    api_key_val=os.getenv('API_KEY_VAL'))  # pass the params to the API calling func
+                return True if use_virus_total(vt_dict_results[0]) else False  # call the func in the vt_check module and check bool result
 
         break  # end the outermost loop
 
