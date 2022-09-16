@@ -26,11 +26,27 @@ def start_watching_path() -> bool:
 
 
 @error_handler
-def start_watching_what_path() -> str:
+def start_watching_custom_path() -> str:
+    """
+    Function to prompt the user to determine if they want to watch
+    a custom path.
+    :return: String containing a custom path to watch
+    """
+    path = input("[?] Enter folder path to monitor, no quotes (i.e. C:/Users/username/Downloads) >> ")
+    if path and isinstance(path, str):
+        if '\\' in path:
+            path = path.replace("\\", "/")
+        return path
+    else:
+        raise BadPromptResponseError
+
+
+@error_handler
+def start_watching_default_path() -> str or None:
     """
     Function to prompt the user to determine if they want to use the OS
-    default Download path, or if they want to provide a custom path
-    :return: String containing either the default Download path, or a custom path
+    default Download path
+    :return: String containing either the default Download path, or None
     """
     os_name = platform.system()  # get OS details
     username = getpass.getuser()  # get current username
@@ -47,10 +63,7 @@ def start_watching_what_path() -> str:
             path = f'/Users/{username}/Downloads/'
             return path
     elif 'n' in default_path:
-        path = input("[?] Enter folder path to monitor, no quotes (i.e. C:/Users/username/Downloads) >> ")
-        if '\\' in path:
-            path = path.replace("\\", "/")
-        return path
+        return
     else:
         raise BadPromptResponseError
 
@@ -63,7 +76,7 @@ def check_vt_for_sha256_hash() -> bool:
     to the user if they have set up a .env file in their dir.
     :return: Boolean result of the prompt (i.e. True = yes / False = no)
     """
-    user_input = input("[?] Would you like to check the SHA256 hash against Virus Total? [y/n] >> ")
+    user_input = input("[?] Would you like to check the SHA256 hash against Virus Total? [y/n] >> ").lower()
     if 'y' in user_input:
         return True
     elif 'n' in user_input:

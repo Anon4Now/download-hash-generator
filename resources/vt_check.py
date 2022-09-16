@@ -1,15 +1,20 @@
-"""Module containing class and methods to parse the Virus Total API call"""
+"""Module containing class and functions to parse the Virus Total API call"""
 
 # Standard Library imports
 import json
 import datetime
+import os
 from dataclasses import dataclass, field
+from typing import Any, Tuple
 
 # Third-party imports
 import requests
 
+from resources.user_prompts import check_vt_for_sha256_hash
 # Local App imports
-from resources.utils import error_handler
+from resources.utils import error_handler, create_logger
+
+logger = create_logger()
 
 
 @dataclass
@@ -21,51 +26,69 @@ class VirusTotal:
     :param api_key: (required) The string representation Virus Total API key (env var)
     :param api_key_val: (required) The string representation of the Virus Total API key value (env var)
     """
-    hash_sha256: str
-    api_endpoint: str
-    api_key: str
-    api_key_val: str
-    out_dict: dict = field(default_factory=dict, init=False, repr=False)
+    last_analysis_date: datetime.datetime = None
+    last_analysis_stats: dict = None
+    error_code: str = None
 
-    @error_handler
-    def __post_init__(self) -> None:
+    @classmethod
+    def from_dict(cls, data: dict) -> "VirusTotal Results":
         """
-        This post init check the API response to make sure there was no error.
-        1. If no error found in response:
-            1a. It will parse the response from the API for the "Last Analysis Time" and the "Last Analysis Stats"
-            1b. It will update the instance dictionary with the data from the response
-        2. If there is an error in response:
-            2a. It will parse the response from the API for the "Error Code"
-            2b. It will update the instance dictionary with the data from the response
-        :return: None
+        This class method will take in a python structure (dict) and parse it for the class params
+        :param data: A python dict obtained from Virus Total's APIs
+        :return: String highlighting what data is being updated in class params
         """
         try:
-            if not self.response.get('error'):
-                _analysis_date = datetime.datetime.fromtimestamp(
-                    self.response.get('data').get('attributes').get('last_analysis_date'))
-                self.out_dict['LastAnalysisDate'] = _analysis_date
-                _analysis_stats = self.response.get('data').get('attributes').get('last_analysis_stats')
-                self.out_dict['LastAnalysisStats'] = _analysis_stats
+            if not data.get('error'):
+                return cls(
+                    last_analysis_date=datetime.datetime.fromtimestamp(
+                        data.get('data').get('attributes').get('last_analysis_date')),
+                    last_analysis_stats=data.get('data').get('attributes').get('last_analysis_stats')
+                )
             else:
-                _error_code = self.response.get('error').get('code')
-                self.out_dict['error_code'] = _error_code
+                return cls(error_code=data.get('error').get('code'))
         except KeyError:
             raise
 
-    @property
-    def response(self) -> dict:
-        """
-        This property method will make the API call and the loads response string
-        :return: Dictionary containing the API response
-        """
-        # See if file has already been uploaded
-        url = f"{self.api_endpoint}{self.hash_sha256}"
 
-        headers = {
-            "Accept": "application/json",
-            self.api_key: self.api_key_val}
-        response = requests.request("GET", url, headers=headers).text
-        if response:
-            return json.loads(response)
-        else:
-            raise Exception
+@error_handler
+def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: str, api_key_val: str) -> Tuple[
+    dict, int]:
+    """
+    This function will make the API call and the loads response string
+    :param sha256_hash: (required) Hash derived from the Hash class needed for VT to check their DB
+    :param api_endpoint: (required) The API endpoint stored as env variable
+    :param api_key: (required) API key stored as env variable
+    :param api_key_val: (required) API key value stored as env variable
+    :return: Dictionary containing the API response
+    """
+    # See if file has already been uploaded
+    url = f"{api_endpoint}{sha256_hash}"
+
+    headers = {
+        "Accept": "application/json",
+        api_key: api_key_val}
+    response = requests.get(url, headers=headers)
+    return response.json(), response.status_code
+
+
+def use_virus_total(vt_results: dict) -> bool:
+    """
+    This function will dispatch the calls to the other elements in the module and
+    will print out the Virus Total scan results to stdout.
+    :param vt_results: (required) Hash derived from the Hash class needed for VT to check their DB
+    :return: None
+    """
+    vt = VirusTotal.from_dict(vt_results)  # call the class method to parse the dict results
+
+    if not vt.error_code:  # make sure there were no errors in API response
+        # Stdout to user what the scan results are
+        print(f">> Virus Total Results:")
+        print(f" >>> Last Analysis Date:")
+        print(f"      {vt.last_analysis_date}")
+        print(f" >>> Last Analysis Stats:")
+        for k, v in vt.last_analysis_stats.items():
+            print(f"      {k} - {v}")
+        return True
+    else:  # if errors in API response, print them out
+        print(f">> Virus Total Scan Failed with error code:\n {vt.error_code}")
+        return False

@@ -73,6 +73,7 @@ def error_handler(func):
             sys.exit(0)
         except FileNotFoundError as err:
             logger.error("FileNotFoundError: error=%s func=%s", err, func.__name__)
+            sys.exit(1)
         except EOFError as err:
             logger.error("EOFError: error=%s func=%s", err, func.__name__)
         except KeyError as err:
