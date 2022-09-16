@@ -68,12 +68,7 @@ def retrieve_virus_total_results(sha256_hash: str, api_endpoint: str, api_key: s
         "Accept": "application/json",
         api_key: api_key_val}
     response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        return response.json(), response.status_code
-    elif response.status_code == 404:
-        return response.json(), response.status_code
-    else:
-        raise Exception
+    return response.json(), response.status_code
 
 
 def use_virus_total(vt_results: dict) -> bool:
