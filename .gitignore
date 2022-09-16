@@ -132,3 +132,4 @@ dmypy.json
 # Pytest
 assets/
 report.html
+reports/*
