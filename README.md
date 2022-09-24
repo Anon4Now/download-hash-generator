@@ -27,6 +27,36 @@ A lot of good sites provide the hashes that are attributed to their offical copy
 - This should work on Linux, OSX, or Windows OS's
 - This can be tested with any file that can be downloaded (🟨 NOTE: if downloading something as large as a VM, the results may not be correct)
 
+## Resource Path:
+
+````
+rootdir:.
+│   .gitignore
+│   config.json
+│   main.py
+│   README.md
+│   requirements.txt
+│
+├───resources
+│   │   errors.py
+│   │   hash_generator.py
+│   │   user_prompts.py
+│   │   utils.py
+│   │   vt_check.py
+│   │   __init__.py
+│
+├───tests
+│   │   test_hash_generator.py
+│   │   test_main.py
+│   │   test_user_prompts.py
+│   │   test_vt_check.py
+│   │   __init__.py
+│   │
+│   ├───json_files
+│   │       no_results.json
+│   │       results.json
+```it
+
 ## ❗IMPORTANT:
 
 This tool will hide the prompt to take the generated SHA256 hash unless the user has created a .env file in the same directory as the source files. This is done to prevent the user from attempting to hard code their API credentials into the code, and to do it the secure way through leveraging environment variables.
@@ -35,11 +65,14 @@ Obviously I cannot stop anyone from taking that route if they really want, but I
 
 Once you have created the .env file in the correct directory update the file with the variables below, reference the VirusTotal's API [DOCS](https://developers.virustotal.com/reference/overview) for more info:
 
-```
+````
+
 # Development settings
+
 API_ENDPOINT=https://www.virustotal.com/api/v3/files/
 API_KEY="x-apikey"
 API_KEY_VAL="<API_KEY_VAL>"
+
 ```
 
 At this point you are done, and the prompt "_Would you like to check the SHA256 hash against VirusTotal DB? [y/n] >>_" should appear after you generate hashes.
@@ -60,3 +93,4 @@ Download the wanted file, the program will generate SHA256, SHA1, and MD5 hashes
 
 **IMPORTANT** For this option to be presented to the user, a .env file will need to be present
 ![get_api_results](https://user-images.githubusercontent.com/80045938/149607147-1d7fe82a-d119-460e-9203-f9471e3a9342.gif)
+```
