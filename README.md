@@ -86,7 +86,7 @@ Run the binary or standalone exe to start CLI prompts.
 
 #### Step 2:
 
-Download the wanted file, the program will generate SHA256, SHA1, and MD5 hashes. This will take approximately 8-10 seconds.
+Download the wanted file, the program will generate SHA256, SHA1, and MD5 hashes.
 ![gen_hashes](https://user-images.githubusercontent.com/80045938/192074964-0a41519b-c3e7-40e7-a3a0-cce12917a349.gif)
 
 #### Step 3:
