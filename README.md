@@ -65,7 +65,7 @@ Obviously I cannot stop anyone from taking that route if they really want, but I
 
 Once you have created the .env file in the correct directory update the file with the variables below, reference the VirusTotal's API [DOCS](https://developers.virustotal.com/reference/overview) for more info:
 
-````
+```
 
 # Development settings
 
@@ -93,7 +93,8 @@ Download the wanted file, the program will generate SHA256, SHA1, and MD5 hashes
 
 **IMPORTANT** For this option to be presented to the user, a .env file will need to be present
 ![get_api_results](https://user-images.githubusercontent.com/80045938/149607147-1d7fe82a-d119-460e-9203-f9471e3a9342.gif)
+
 ```
 
 #blueteam
-````
+```
