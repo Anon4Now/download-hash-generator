@@ -29,7 +29,7 @@ A lot of good sites provide the hashes that are attributed to their offical copy
 
 ## Resource Path:
 
-````
+```
 rootdir:.
 │   .gitignore
 │   config.json
@@ -56,7 +56,6 @@ rootdir:.
 │   │       no_results.json
 │   │       results.json
 ```
-
 
 ## ❗IMPORTANT:
 
@@ -97,3 +96,4 @@ Download the wanted file, the program will generate SHA256, SHA1, and MD5 hashes
 ```
 
 #blueteam
+````
